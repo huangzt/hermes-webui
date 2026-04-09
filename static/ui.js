@@ -299,7 +299,7 @@ function copyMsg(btn){
   navigator.clipboard.writeText(text).then(()=>{
     const orig=btn.innerHTML;btn.innerHTML='&#10003;';btn.style.color='var(--blue)';
     setTimeout(()=>{btn.innerHTML=orig;btn.style.color='';},1500);
-  }).catch(()=>showToast('Copy failed'));
+  }).catch(()=>showToast(t('msg_copy_failed')));
 }
 
 // ── Reconnect banner (B4/B5: reload resilience) ──
@@ -713,7 +713,7 @@ function buildToolCard(tc){
         }</div>`:''}
         ${displaySnippet?`<div class="tool-card-result">
           <pre>${esc(displaySnippet)}</pre>
-          ${hasMore?`<button class="tool-card-more" data-full="${esc(tc.snippet||'').replace(/"/g,'&quot;')}" data-short="${esc(displaySnippet||'').replace(/"/g,'&quot;')}" onclick="event.stopPropagation();const p=this.previousElementSibling;const full=this.dataset.full;const short=this.dataset.short;p.textContent=p.textContent===short?full:short;this.textContent=p.textContent===short?'Show more':'Show less'">Show more</button>`:''}
+          ${hasMore?`<button class="tool-card-more" data-full="${esc(tc.snippet||'').replace(/"/g,'&quot;')}" data-short="${esc(displaySnippet||'').replace(/"/g,'&quot;')}" onclick="event.stopPropagation();const p=this.previousElementSibling;const full=this.dataset.full;const short=this.dataset.short;p.textContent=p.textContent===short?full:short;this.textContent=p.textContent===short?t('show_more'):t('show_less')">${t('show_more')}</button>`:''}
         </div>`:''}
       </div>`:''}
     </div>`;
@@ -764,7 +764,7 @@ function editMessage(btn) {
   // Action bar below the textarea
   const bar = document.createElement('div');
   bar.className = 'msg-edit-bar';
-  bar.innerHTML = `<button class="msg-edit-send">Send edit</button><button class="msg-edit-cancel">Cancel</button>`;
+  bar.innerHTML = `<button class="msg-edit-send">${t('btn_send_edit')}</button><button class="msg-edit-cancel">${t('btn_cancel_edit')}</button>`;
   ta.after(bar);
 
   bar.querySelector('.msg-edit-send').onclick = async () => {

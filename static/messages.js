@@ -21,7 +21,7 @@ async function send(){
 
   const activeSid=S.session.session_id;
 
-  setStatus(S.pendingFiles&&S.pendingFiles.length?'Uploading…':'Sending…');
+  setStatus(S.pendingFiles&&S.pendingFiles.length?t('msg_uploading'):t('msg_sending'));
   let uploaded=[];
   try{uploaded=await uploadPendingFiles();}
   catch(e){if(!text){setStatus(`❌ ${e.message}`);return;}}
@@ -29,7 +29,7 @@ async function send(){
   let msgText=text;
   if(uploaded.length&&!msgText)msgText=`I've uploaded ${uploaded.length} file(s): ${uploaded.join(', ')}`;
   else if(uploaded.length)msgText=`${text}\n\n[Attached files: ${uploaded.join(', ')}]`;
-  if(!msgText){setStatus('Nothing to send');return;}
+  if(!msgText){setStatus(t('msg_nothing_to_send'));return;}
 
   $('msg').value='';autoResize();
   const displayText=text||(uploaded.length?`Uploaded: ${uploaded.join(', ')}`:'(file upload)');
@@ -267,12 +267,12 @@ async function send(){
       // Attempt one reconnect if the stream is still active server-side
       if(!_reconnectAttempted && streamId){
         _reconnectAttempted=true;
-        setStatus('Connection lost \u2014 reconnecting\u2026');
+        setStatus(t('msg_connection_lost_reconnecting'));
         setTimeout(async()=>{
           try{
             const st=await api(`/api/chat/stream/status?stream_id=${encodeURIComponent(streamId)}`);
             if(st.active){
-              setStatus('Reconnected');
+              setStatus(t('msg_reconnected'));
               _wireSSE(new EventSource(new URL(`/api/chat/stream?stream_id=${encodeURIComponent(streamId)}`,location.origin).href,{withCredentials:true}));
               return;
             }
@@ -306,7 +306,7 @@ async function send(){
     if(S.session&&S.session.session_id===activeSid){
       S.activeStreamId=null;const _cbe=$('btnCancel');if(_cbe)_cbe.style.display='none';
       clearLiveToolCards();if(!assistantText)removeThinking();
-      S.messages.push({role:'assistant',content:'**Error:** Connection lost'});renderMessages();
+      S.messages.push({role:'assistant',content:'**'+t('msg_error_connection_lost')+'**'});renderMessages();
     }else{
       // User switched away — show background error banner
       if(typeof trackBackgroundError==='function'){

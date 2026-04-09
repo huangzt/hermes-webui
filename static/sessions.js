@@ -157,7 +157,7 @@ function renderSessionListFromCache(){
     const addBtn=document.createElement('button');
     addBtn.className='project-create-btn';
     addBtn.textContent='+';
-    addBtn.title='New project';
+    addBtn.title=t('btn_new_project');
     addBtn.onclick=(e)=>{e.stopPropagation();_startProjectCreate(bar,addBtn);};
     bar.appendChild(addBtn);
     list.appendChild(bar);
@@ -167,13 +167,13 @@ function renderSessionListFromCache(){
   if(otherProfileCount>0&&!_showAllProfiles){
     const pfToggle=document.createElement('div');
     pfToggle.style.cssText='font-size:10px;padding:4px 10px;color:var(--muted);cursor:pointer;text-align:center;opacity:.7;';
-    pfToggle.textContent='Show '+otherProfileCount+' from other profiles';
+    pfToggle.textContent=t('show_other_profiles').replace('{}',otherProfileCount);
     pfToggle.onclick=()=>{_showAllProfiles=true;renderSessionListFromCache();};
     list.appendChild(pfToggle);
   } else if(_showAllProfiles&&otherProfileCount>0){
     const pfToggle=document.createElement('div');
     pfToggle.style.cssText='font-size:10px;padding:4px 10px;color:var(--muted);cursor:pointer;text-align:center;opacity:.7;';
-    pfToggle.textContent='Show active profile only';
+    pfToggle.textContent=t('show_active_profile_only');
     pfToggle.onclick=()=>{_showAllProfiles=false;renderSessionListFromCache();};
     list.appendChild(pfToggle);
   }
@@ -181,7 +181,7 @@ function renderSessionListFromCache(){
   if(archivedCount>0){
     const toggle=document.createElement('div');
     toggle.style.cssText='font-size:10px;padding:4px 10px;color:var(--muted);cursor:pointer;text-align:center;opacity:.7;';
-    toggle.textContent=_showArchived?'Hide archived':'Show '+archivedCount+' archived';
+    toggle.textContent=_showArchived?t('hide_archived'):t('show_archived').replace('{}',archivedCount);
     toggle.onclick=()=>{_showArchived=!_showArchived;renderSessionListFromCache();};
     list.appendChild(toggle);
   }
@@ -255,13 +255,13 @@ function renderSessionListFromCache(){
     const title=document.createElement('span');
     title.className='session-title';
     title.textContent=cleanTitle||'Untitled';
-    title.title='Double-click to rename';
+    title.title=t('hint_double_click_rename');
     // Append tag chips after the title text
     for(const tag of tags){
       const chip=document.createElement('span');
       chip.className='session-tag';
       chip.textContent=tag;
-      chip.title='Click to filter by '+tag;
+      chip.title=t('hint_filter_by_tag')+tag;
       chip.onclick=(e)=>{
         e.stopPropagation();
         const searchBox=$('sessionSearch');
@@ -330,7 +330,7 @@ function renderSessionListFromCache(){
     const pinBtn=document.createElement('button');
     pinBtn.className='act-pin'+(s.pinned?' pinned':'');
     pinBtn.innerHTML=s.pinned?ICONS.pin:ICONS.unpin;
-    pinBtn.title=s.pinned?'Unpin':'Pin to top';
+    pinBtn.title=s.pinned?t('btn_unpin'):t('btn_pin_to_top');
     pinBtn.onclick=async(e)=>{
       e.stopPropagation();e.preventDefault();
       const newPinned=!s.pinned;
@@ -339,18 +339,18 @@ function renderSessionListFromCache(){
         s.pinned=newPinned;
         if(S.session&&S.session.session_id===s.session_id) S.session.pinned=newPinned;
         renderSessionList();
-      }catch(err){showToast('Pin failed: '+err.message);}
+      }catch(err){showToast(t('pin_failed')+err.message);}
     };
     actions.appendChild(pinBtn);
     // Move to project
     const move=document.createElement('button');
-    move.className='act-move';move.innerHTML=ICONS.folder;move.title='Move to project';
+    move.className='act-move';move.innerHTML=ICONS.folder;move.title=t('btn_move_to_project');
     move.onclick=async(e)=>{e.stopPropagation();e.preventDefault();_showProjectPicker(s,move);};
     actions.appendChild(move);
     // Archive
     const archive=document.createElement('button');
     archive.className='act-archive';archive.innerHTML=s.archived?ICONS.unarchive:ICONS.archive;
-    archive.title=s.archived?'Unarchive':'Archive';
+    archive.title=s.archived?t('btn_unarchive'):t('btn_archive');
     archive.onclick=async(e)=>{
       e.stopPropagation();e.preventDefault();
       try{
@@ -358,13 +358,13 @@ function renderSessionListFromCache(){
         s.archived=!s.archived;
         if(S.session&&S.session.session_id===s.session_id) S.session.archived=s.archived;
         await renderSessionList();
-        showToast(s.archived?'Session archived':'Session restored');
-      }catch(err){showToast('Archive failed: '+err.message);}
+        showToast(s.archived?t('session_archived'):t('session_restored'));
+      }catch(err){showToast(t('archive_failed')+err.message);}
     };
     actions.appendChild(archive);
     // Duplicate
     const dup=document.createElement('button');
-    dup.className='act-dup';dup.innerHTML=ICONS.dup;dup.title='Duplicate';
+    dup.className='act-dup';dup.innerHTML=ICONS.dup;dup.title=t('btn_duplicate');
     dup.onclick=async(e)=>{
       e.stopPropagation();e.preventDefault();
       try{
@@ -372,14 +372,14 @@ function renderSessionListFromCache(){
         if(res.session){
           await api('/api/session/rename',{method:'POST',body:JSON.stringify({session_id:res.session.session_id,title:(s.title||'Untitled')+' (copy)'})});
           await loadSession(res.session.session_id);await renderSessionList();
-          showToast('Session duplicated');
+          showToast(t('session_duplicated'));
         }
-      }catch(err){showToast('Duplicate failed: '+err.message);}
+      }catch(err){showToast(t('duplicate_failed')+err.message);}
     };
     actions.appendChild(dup);
     // Trash
     const trash=document.createElement('button');
-    trash.className='act-trash';trash.innerHTML=ICONS.trash;trash.title='Delete';
+    trash.className='act-trash';trash.innerHTML=ICONS.trash;trash.title=t('btn_delete');
     trash.onclick=async(e)=>{e.stopPropagation();e.preventDefault();await deleteSession(s.session_id);};
     actions.appendChild(trash);
     el.appendChild(actions);
@@ -417,10 +417,10 @@ function renderSessionListFromCache(){
 }
 
 async function deleteSession(sid){
-  if(!confirm('Delete this conversation?'))return;
+  if(!confirm(t('confirm_delete_session')))return;
   try{
     await api('/api/session/delete',{method:'POST',body:JSON.stringify({session_id:sid})});
-  }catch(e){setStatus(`Delete failed: ${e.message}`);return;}
+  }catch(e){setStatus(t('delete_failed')+e.message);return;}
   if(S.session&&S.session.session_id===sid){
     S.session=null;S.messages=[];S.entries=[];
     localStorage.removeItem('hermes-webui-session');
@@ -429,14 +429,14 @@ async function deleteSession(sid){
     if(remaining.sessions&&remaining.sessions.length){
       await loadSession(remaining.sessions[0].session_id);
     }else{
-      $('topbarTitle').textContent=window._botName||'Hermes';
-      $('topbarMeta').textContent='Start a new conversation';
+      $('topbarTitle').textContent=window._botName||t('topbar_title_default');
+      $('topbarMeta').textContent=t('start_conversation');
       $('msgInner').innerHTML='';
       $('emptyState').style.display='';
       $('fileTree').innerHTML='';
     }
   }
-  showToast('Conversation deleted');
+  showToast(t('deleted') + 'conversation');
   await renderSessionList();
 }
 
@@ -459,7 +459,7 @@ function _showProjectPicker(session, anchorEl){
     await api('/api/session/move',{method:'POST',body:JSON.stringify({session_id:session.session_id,project_id:null})});
     session.project_id=null;
     renderSessionListFromCache();
-    showToast('Removed from project');
+    showToast(t('removed_from_project'));
   };
   picker.appendChild(none);
   // Project options
@@ -481,7 +481,7 @@ function _showProjectPicker(session, anchorEl){
       await api('/api/session/move',{method:'POST',body:JSON.stringify({session_id:session.session_id,project_id:p.project_id})});
       session.project_id=p.project_id;
       renderSessionListFromCache();
-      showToast('Moved to '+p.name);
+      showToast(t('moved_to_project')+p.name);
     };
     picker.appendChild(item);
   }
@@ -493,7 +493,7 @@ function _showProjectPicker(session, anchorEl){
     picker.remove();
     document.removeEventListener('click',close);
     // Prompt for name inline
-    const name=prompt('Project name:');
+    const name=prompt(t('project_name_prompt'));
     if(!name||!name.trim()) return;
     const color=PROJECT_COLORS[_allProjects.length%PROJECT_COLORS.length];
     const res=await api('/api/projects/create',{method:'POST',body:JSON.stringify({name:name.trim(),color})});
@@ -503,7 +503,7 @@ function _showProjectPicker(session, anchorEl){
       await api('/api/session/move',{method:'POST',body:JSON.stringify({session_id:session.session_id,project_id:res.project.project_id})});
       session.project_id=res.project.project_id;
       await renderSessionList();
-      showToast('Created "'+res.project.name+'" and moved session');
+      showToast(t('project_created_moved')+res.project.name+'" and moved session');
     }
   };
   picker.appendChild(createItem);
@@ -535,13 +535,14 @@ function _showProjectPicker(session, anchorEl){
 function _startProjectCreate(bar, addBtn){
   const inp=document.createElement('input');
   inp.className='project-create-input';
-  inp.placeholder='Project name';
+  inp.placeholder=t('project_name_placeholder');
   const finish=async(save)=>{
     if(save&&inp.value.trim()){
       const color=PROJECT_COLORS[_allProjects.length%PROJECT_COLORS.length];
-      await api('/api/projects/create',{method:'POST',body:JSON.stringify({name:inp.value.trim(),color})});
+      const res=await api('/api/projects/create',{method:'POST',body:JSON.stringify({name:inp.value.trim(),color})});
+      if(res.project) _allProjects.push(res.project);
       await renderSessionList();
-      showToast('Project created');
+      showToast(t('project_created'));
     }else{
       inp.replaceWith(addBtn);
     }
@@ -562,8 +563,9 @@ function _startProjectRename(proj, chip){
   const finish=async(save)=>{
     if(save&&inp.value.trim()&&inp.value.trim()!==proj.name){
       await api('/api/projects/rename',{method:'POST',body:JSON.stringify({project_id:proj.project_id,name:inp.value.trim()})});
+      proj.name=inp.value.trim();
       await renderSessionList();
-      showToast('Project renamed');
+      showToast(t('project_renamed'));
     }else{
       renderSessionListFromCache();
     }
@@ -579,11 +581,11 @@ function _startProjectRename(proj, chip){
 }
 
 async function _confirmDeleteProject(proj){
-  if(!confirm('Delete project "'+proj.name+'"? Sessions will be unassigned but not deleted.')){return;}
+  if(!confirm(t('confirm_delete_project',proj.name))){return;}
   await api('/api/projects/delete',{method:'POST',body:JSON.stringify({project_id:proj.project_id})});
   if(_activeProject===proj.project_id) _activeProject=null;
   await renderSessionList();
-  showToast('Project deleted');
+  showToast(t('project_deleted'));
 }
 
 
