@@ -6,6 +6,11 @@
 ---
 
 
+## [Unreleased]
+
+### Bug Fixes
+- **Cancel button now interrupts agent tool execution**: Fixed issue where clicking Cancel would stop the UI stream but leave the backend agent and its tool calls running. The `cancel_stream()` function now calls `agent.interrupt()` to propagate the cancellation signal through the agent's interrupt mechanism, ensuring long-running tools (terminal commands, file operations, etc.) are properly terminated. Adds `AGENT_INSTANCES` dict to track active agent instances for interrupt propagation.
+
 ## [v0.43.1] — 2026-04-10
 
 - **CSRF fix for reverse proxies** (PR #219): The CSRF check now accepts `X-Forwarded-Host` and `X-Real-Host` headers in addition to `Host`, so deployments behind Caddy, nginx, and Traefik no longer reject POST requests with "Cross-origin request rejected". Security is preserved — requests with no matching proxy header are still rejected. Fixes #218.
